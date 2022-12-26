@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  </head>
+
+  <body>
+    <canvas id="myChart" style="width: 100%; max-width: 1500px"></canvas>
+    <script>
+      $(document).ready(function () {
+        $.ajax({
+          type: "GET",
+          url: "http://127.0.0.1:8000/extrarunsperteam",
+          dataType: "json",
+          success: function (output) {
+            var teams = [];
+            var extraruns = [];
+            for (data in output) {
+              teams.push(output[data].battingteam);
+              extraruns.push(output[data].extraruns);
+            }
+            var xValues = teams;
+            var yValues = extraruns;
+            var barColors = [
+              "red",
+              "green",
+              "blue",
+              "orange",
+              "brown",
+              "yellow",
+              "#77a1e5",
+              "#c42525",
+              "#a6c96a",
+              "pink",
+            ];
+            new Chart("myChart", {
+              type: "bar",
+              data: {
+                labels: xValues,
+                datasets: [
+                  {
+                    backgroundColor: barColors,
+                    data: yValues,
+                  },
+                ],
+              },
+
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+                legend: { display: false },
+                title: {
+                  display: true,
+                  text: "Extraruns Per Team",
+                },
+              },
+            });
+          },
+        });
+      });
+    </script>
+  </body>
+  
+</html>

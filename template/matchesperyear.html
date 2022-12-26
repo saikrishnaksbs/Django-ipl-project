@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  </head>
+
+  <body>
+    <canvas id="myChart" style="width: 100%; max-width: 1400px "></canvas>
+    <script>
+      
+      $(document).ready(function () {
+        $.ajax({
+          type: "GET",
+          url: "http://127.0.0.1:8000/matchesplayed",
+          dataType: "json",
+          success: function (output) {
+            var seasons = [];
+            var matchesplayed = [];
+            for (data in output) {
+              seasons.push(output[data].season);
+
+              matchesplayed.push(output[data].totalplayed);
+            }
+            var xValues = seasons;
+            var yValues = matchesplayed;
+            var barColors = [
+              "red",
+              "green",
+              "blue",
+              "orange",
+              "brown",
+              "yellow",
+              "#77a1e5",
+              "#c42525",
+              "#a6c96a",
+              "pink",
+            ];
+            new Chart("myChart", {
+              type: "bar",
+              data: {
+                labels: xValues,
+                datasets: [
+                  {
+                    backgroundColor: barColors,
+                    data: yValues,
+                  },
+                ],
+              },
+
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                  },
+                },
+                legend: { display: false },
+                title: {
+                  display: true,
+                  text: "Matches Played Per Year",
+                },
+              },
+            });
+          },
+        });
+      });
+    </script>
+  </body>  
+  </html>

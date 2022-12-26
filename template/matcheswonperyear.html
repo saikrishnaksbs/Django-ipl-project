@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      type="text/javascript"
+      src="http://www.chartjs.org/assets/Chart.min.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.3.0/Chart.bundle.js"
+    ></script>
+  </head>
+
+  <body>
+    <canvas id="bar-chart-grouped" width="800" height="450"></canvas>
+    <script>
+      $(document).ready(function () {
+        $.ajax({
+          type: "GET",
+          url: "http://127.0.0.1:8000/matcheswon",
+          dataType: "json",
+          success: function (output) {
+            matchesWonPerTeamPerYear = {};
+            teams = new Set();
+            for (data in output) {
+              var seasons = output[data].season;
+              var winner = output[data].winner;
+              var wincount = output[data].win;
+
+              if (!matchesWonPerTeamPerYear[seasons]) {
+                matchesWonPerTeamPerYear[seasons] = {};
+              }
+              if (
+                !(winner in matchesWonPerTeamPerYear[seasons]) &&
+                winner != ""
+              ) {
+                matchesWonPerTeamPerYear[seasons][winner] = wincount;
+                teams.add(winner);
+              } else {
+                matchesWonPerTeamPerYear[seasons][winner] = wincount;
+              }
+            }
+            teams = Array.from(teams);
+
+            label = Object.keys(matchesWonPerTeamPerYear);
+            console.log(label);
+            const teamlength = teams.length;
+            let teamwins = [];
+            for (var team = 0; team < teamlength; team++) {
+              teamwins[team] = [];
+            }
+            console.log(teamwins);
+            index = 0;
+            console.log(teams);
+            for (team of teams) {
+              for (season of label) {
+                if (team in matchesWonPerTeamPerYear[season]) {
+                  teamwins[index].push(matchesWonPerTeamPerYear[season][team]);
+                } else {
+                  teamwins[index].push(0);
+                }
+              }
+              index++;
+            }
+            console.log(teamwins);
+
+            new Chart(document.getElementById("bar-chart-grouped"), {
+              type: "bar",
+              data: {
+                labels: label,
+                datasets: [
+                  {
+                    label: teams[0],
+                    backgroundColor: "pink",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[0],
+                  },
+                  {
+                    label: teams[1],
+                    backgroundColor: "yellow",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[1],
+                  },
+                  {
+                    label: teams[2],
+                    backgroundColor: "blue",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[2],
+                  },
+                  {
+                    label: teams[3],
+                    backgroundColor: "green",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[3],
+                  },
+                  {
+                    label: teams[4],
+                    backgroundColor: "red",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[4],
+                  },
+                  {
+                    label: teams[5],
+                    backgroundColor: "orange",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[5],
+                  },
+                  {
+                    label: teams[6],
+                    backgroundColor: "cyan",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[6],
+                  },
+                  {
+                    label: teams[7],
+                    backgroundColor: "grey",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[7],
+                  },
+                  {
+                    label: teams[8],
+                    backgroundColor: "indigo",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[8],
+                  },
+                  {
+                    label: teams[9],
+                    backgroundColor: "lightred",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[9],
+                  },
+
+                  {
+                    label: teams[10],
+                    backgroundColor: "lightblue",
+                    borderColor: "blue",
+                    borderWidth: 1,
+                    data: teamwins[10],
+                  },
+                  {
+                    label: teams[11],
+                    backgroundColor: "lightgreen",
+                    borderColor: "green",
+                    borderWidth: 1,
+                    data: teamwins[11],
+                  },
+                  {
+                    label: teams[12],
+                    backgroundColor: "safron",
+                    borderColor: "red",
+                    borderWidth: 1,
+                    data: teamwins[12],
+                  },
+                  {
+                    label: teams[13],
+                    backgroundColor: "darkgreen",
+                    borderColor: "orange",
+                    borderWidth: 1,
+                    data: teamwins[13],
+                  },
+                ],
+              },
+              options: {
+                title: {
+                  display: true,
+                  text: "Matches Won Per Year Per Team",
+                },
+              },
+            });
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
