@@ -197,10 +197,252 @@ Modules are files present inside a package, whereas a class is used to encapsula
 _______
 ### Using ORM queries in Django Shell
 
+
+To invoke the Python shell, use this command
+
+    python manage.py shell
+
+How to get all records from table(Model)
+
+    >>> from sampleapp.models import Student  
+    >>> queryset = Student.objects.all()  
+    >>> queryset  
+    <QuerySet [<Student: Ritesh Tiwari>, <Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>, <Student: Megha Bhardwaj>, <Student: Akash Mishra>]>  
+
+
+How to add record to table(Model)
+
+We will use the Student.objects.create() and pass the fields along with its value as argument. Let's see the below example.
+
+    >>> queryset = Student.objects.create(username = 'rahul20', first_name = 'Rahul', last_name = 'Shakya', mobile = '77777', email = 'rahul@gmail.com')  
+
+    >>> queryset.save()  
+
+Retrieving Single Objects from QuerySets
+
+Suppose we need a specific object from a queryset to matching the result. We can do this using the get() method. The get() returns the single object directly. Let's see the following example.
+
+    >>> from sampleapp.models import Student  
+    >>> queryset = Student.objects.get(pk = 1)  
+    >>> queryset  
+    <Student: Ritesh Tiwari>  
+
+    >>> queryset = Student.objects.get(mobile = 22222)   
+    >>> queryset  
+    <Student: Yash Sharma>  
+
+Filtering the Records
+
+In the earlier example, the QuerySet returned by all() describes the all record in the database table. But sometimes, we need to select the subset of complete set of object and it can be done by adding the filter conditions.
+
+In the below example, we will fetch the data which first name starts with the R.
+
+    >>> queryset = Student.objects.filter(first_name__startswith = 'R')  
+    >>> queryset  
+    <QuerySet [<Student: Ritesh Tiwari>, <Student: Rahul Shakya>]>  
+
+    >>> str(queryset.query)  
+    'SELECT "sampleapp_student"."id", "sampleapp_student"."username", "sampleapp_student"."first_name", "sampleapp_student"."last_name", "sampleapp_student"."mobile", "sampleapp_student"."email" FROM "sampleapp_student" WHERE "sampleapp_student"."first_name" LIKE R%  
+
+Using exclude() Method
+
+It returns a new QuerySet containing objects that do not match the given lookup parameter. In other words, it excluded the records according the lookup condition. Let's understand the following example.
+
+
+    >>> queryset = Student.objects.exclude(first_name__startswith = 'R')   
+    >>> queryset  
+    , , , , ]>
+
+How to make OR queries in Django ORM?
+
+The OR operation is performed when we need the record filtering with two or more conditions. In the below example, we will get the student whose first_name starts with 'A' and last_name starts with 'M'.
+
+Django allows us to do this in two ways.
+
+queryset_1 |queryset_2
+
+filter(Q(<condition_1>) | Q(<condition_2>
+
+    >>> queryset = Student.objects.filter(first_name__startswith = 'R') | Student.objects.filter(last_name__startswith = 'S')     
+    >>> queryset  
+    <QuerySet [<Student: Ritesh Tiwari>, <Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>, <Student: Rahul Shakya>]>  
+
+    >>> str(queryset.query)   
+    'SELECT "sampleapp_student"."id", "sampleapp_student"."username", "sampleapp_student"."first_name", "sampleapp_student"."last_name", "sampleapp_student"."mobile", "sampleapp_student"."email" FROM "sampleapp_student" WHERE ("sampleapp_student"."first_name" LIKE R% ESCAPE \'\\\' OR "sampleapp_student"."last_name" LIKE S% ESCAPE \'\\\')'
+
+
+How to make AND queries in Django ORM?
+
+The AND operation is performed when we need the record matching with two or more conditions. In the below example, we will get the student whose first_name starts with 'P' and last_name starts with 'S'.
+
+Django allows us to do this in three ways.
+
+    1 queryset_1 & queryset_2
+    
+    2. filter(<condition_1>, <condition_2>)
+    
+    3. filter(Q(condition_1) & Q(condition_2))
+
+    >>> queryset = Student.objects.filter(first_name__startswith = 'P') & Student.objects.filter(last_name__startswith = 'S')   
+    >>> queryset  
+    <QuerySet [<Student: Prince Sharma>]>  
+
+We can also use the following query.
+
+    queryset2 = User.objects.filter( first_name__startswith='A', last_name__startswith='S' )  
+
+or 
+
+    queryset3 = User.objects.filter(Q(first_name__startswith='R') & Q(last_name__startswith='D'))
+
+Creating Multiple Object
+
+Sometimes we want create multiple objects in one shot. Suppose we want to create new objects at once and we don't want to run the multiple queries to the database. Django ORM provides the bulk_create to create multiple objects in one way.
+
+    >>> Student.objects.all().count()  
+    7  
+
+createating the multiple records in one query.
+
+    Student.objects.bulk_create([Student(first_name = 'Jai', last_name = 'Shah', mobile = '88888', email = 'shah@reddif.com'),Student(first_name = 'Tarak', last_name = 'Mehta', mobile = '9999', email = 'tarak@reddif.com'), Student(first_name = 'SuryaKumar', last_name = 'Yadav', mobile = '00000', email = 'yadav@reddif.com')])  
+    [<Student: Jai Shah>, <Student: Tarak Mehta>, <Student: SuryaKumar Yadav>]  
+
+Limiting QuerySets
+
+We can set the limit on the queryset using the Python list's slicing syntax. This is equivalent operation of SQL's LIMIT and OFFSET clauses. Let's see the following query.
+
+    >>> Student.objects.all()[:4]  
+    <QuerySet [<Student: Ritesh Tiwari>, <Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>]>
+
+Below query will return first record to fifth record.
+
+    >>> Student.objects.all()[1:6]     
+    <QuerySet [<Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>, <Student: Megha Bhardwaj>, <Student: Akash Mishra>]>  
+
+How to order a QuerySets in ascending or descending order?
+Django provides the order_by method for ordering the queryset. This method takes the field name which we want to Order (ascending and descending) the result. Let's see the following example.
+
+Example - Ascending order
+
+    >>> from sampleapp.models import Student  
+    >>> Student.objects.all().order_by('mobile')      
+    <QuerySet [<Student: SuryaKumar Yadav>, <Student: Ritesh Tiwari>, <StudentTo get the SQL query, we need to use the str() and pass the queryset object along with query.
+
+    >>> str(queryset.query)  
+    'SELECT "sampleapp_student"."id", "sampleapp_student"."username", "sampleapp_student"."first_name", "sampleapp_student"."last_name", "sampleapp_student"."mobile", "sampleapp_student"."email" FROM "sampleapp_student"'  
+: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>, <Student: Megha Bhardwaj>, <Student: Akash Mishra>, <Student: Rahul Shakya>, <Student: Jai Shah>, <Student: Tarak Mehta>]>  
+
+For descending order, we will use the Not '-' before the query field.
+
+    >>> from sampleapp.models import Student    
+    >>> Student.objects.all().order_by('-mobile')  
+    <QuerySet [<Student: Tarak Mehta>, <Student: Jai Shah>, <Student: Rahul Shakya>, <Student: Akash Mishra>, <Student: Megha Bhardwaj>, <Student: Prince Sharma>, <Student: Arpita Sharma>, <Student: Yash Sharma>, <Student: Ritesh Tiwari>, <Student: SuryaKumar Yadav>]>  
+
+We can also pass the multiple fields in the order_by function.
+
+    >>> Student.objects.all().order_by('first_name','-mobile')   
+    <QuerySet [<Student: Akash Mishra>, <Student: Arpita Sharma>, <Student: Jai Shah>, <Student: Megha Bhardwaj>, <Student: Prince Sharma>, <Student:Rahul Shakya>, <Student: Ritesh Tiwari>, <Student: SuryaKumar Yadav>, <Student: Tarak Mehta>, <Student: Yash Sharma>]>  
+
+How to order on a field from a related model (with foreign key)?
+
+Now, we will learn how we can order the data in the relation model. We create another model called Teacher which is a related model of Student model.
+
+    >>> Student.objects.all().order_by('teacher__id', 'first_name')       
+    <QuerySet [<Student: Prince Sharma>, <Student: Ritesh Tiwari>, <Student: SuryaKumar Yadav>, <Student: Tarak Mehta>, <Student: Arpita Sharma>, <Student: Megha Bhardwaj>, <Student: Jai Shah>, <Student: Rahul Shakya>, <Student: Yash Sharma>, <Student: Akash Mishra>]>
+
+Query field lookups are nothing but a condition which specifies same as the SQL WHERE clause. They are stated as keyword arguments to the QuerySet methods such as filter(), exclude(), and get().
+
+Example -
+
+    Student.objects.filter(first_name__startswith = 'Ritesh')   
+    <QuerySet [<Student: Ritesh Tiwari>]>  
+
+-   exact
+It returns the exact result according to the search.
+
+    >>> Student.objects.get(first_name__exact = 'Arpita')           
+    <Student: Arpita Sharma>  
+
+Lookup should be used after the __ double underscore. We can use the case-insensitive version called iexact.
+
+-   contains
+
+    >>> from sampleapp.models import Student  
+    >>> Student.objects.filter(last_name__contains = 'Shar')       
+    <QuerySet [<Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>]>  
+
+How to perform join operations in Django
+The SQL join combines data or rows from two or more tables based on a common field between them. We can perform join operation in many ways. Let's understand the following example.
+
+    >>> q = Student.objects.select_related('teacher')  
+    >>>q  
+    <QuerySet [<Student: Ritesh Tiwari>, <Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>, <Student: Megha Bhardwaj>, <Student: Akash Mishra>, <Student: Rahul Shakya>, <Student: Jai Shah>, <Student: Tarak Mehta>, <Student: SuryaKumar Yadav>]>  
+    >>>print(q.query)  
+    SELECT "sampleapp_student"."id", "sampleapp_student"."username", "sampleapp_student"."first_name", "sampleapp_student"."last_name", "sampleapp_student"."mobile", "sampleapp_student"."email", "sampleapp_student"."teacher_id", "sampleapp_teacher"."id", "sampleapp_teacher"."teacher_name" FROM "sampleapp_student" LEFT OUTER JOIN "sampleapp_teacher" ON ("sampleapp_student"."teacher_id" = "sampleapp_teacher"."id")  
+
+How to group record in Django ORM?
+
+Django ORM provides the grouping facility using the aggregation functions like Max, Min, Avg, and Sum. Sometimes we need to get the aggregate values from the objects. Let's understand the following example.
+
+    >>> from django.db.models import Avg, Max, Min, Sum, Count  
+    >>> Student.objects.all().aggregate(Avg('id'))  
+    {'id__avg': 5.5}  
+    >>> Student.objects.all().aggregate(Min('id'))    
+    {'id__min': 1}  
+    >>> Student.objects.all().aggregate(Max('id'))   
+    {'id__max': 10}  
+    >>> Student.objects.all().aggregate(Sum('id'))   
+    {'id__sum': 55}  
+
+How to perform truncate like operation using Django ORM?
+
+Truncate in SQL means clear the table data for future use. Django doesn't provide the built-in methods to truncate the table, but we can use the delete() method to get the similar result. Let's understand the following example.
+
+    >>> Student.objects.all().count()  
+    10  
+    >>> Student.objects.all().delete()  
+    (10, {'sampleapp.Student': 10})  
+    >>> Student.objects.all().count()  
+    0  
+    >>> Student.objects.all()       
+    <QuerySet []>  
+
+How to get union of Data
+Union means getting the record which are common in both query sets. Let's see how we can do this.
+
+    >>> q1 = Student.objects.filter(id__gte = 15)    
+    >>> q1  
+    <QuerySet [<Student: Megha Bhardwaj>, <Student: Akash Mishra>]>  
+    >>> q2 = Student.objects.filter(id__lte = 15)    
+    >>> q2  
+    <QuerySet [<Student: Ritesh Tiwari>, <Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>, <Student: Megha Bhardwaj>]>  
+    >>> q1.union(q2)  
+    <QuerySet [<Student: Ritesh Tiwari>, <Student: Yash Sharma>, <Student: Arpita Sharma>, <Student: Prince Sharma>, <Student: Megha Bhardwaj>, <Student: Akash Mishra>]>  
+
+If null=True means the field value is set as NULL i.e. no data. It is basically for the database column value.
+
+    date = models.DateTimeField(null=True)  
+
+The blank = True specifies whether field is required in forms.
+
+    title = models.CharField(blank=True) // title can be kept blank. In the database ("") will be stored.  
+
+If we set null=True blank=True, means that the field is optional in all circumstances.
+
+    teacher = models.ForeignKey(null=True, blank=True) // The exception is CharFields() and TextFields(), which in Django are never saved as ?→NULL. Blank values are stored in the DB as an empty string ('').  
+
 ### Turning ORM to SQL in Django Shell
 
+To get the SQL query, we need to use the str() and pass the queryset object along with query.
+
+    >>> str(queryset.query)
+    'SELECT "sampleapp_student"."id", "sampleapp_student"."username", "sampleapp_student"."first_name", "sampleapp_student"."last_name", "sampleapp_student"."mobile", "sampleapp_student"."email" FROM "sampleapp_student"'  
+
+
 ### What are Aggregations?
+
 The meaning of aggregation is “the collection of  related items of content so that they can be  displayed or linked to”. there are different situations that you will need to use Aggregation in Django, for example:
+
 
 1.for finding “maximum”, “minimum” value of column in database table in django models.
 2.for finding “count” of records in database table  based on a column.
@@ -209,18 +451,37 @@ The meaning of aggregation is “the collection of  related items of content so 
 In most of the cases we use aggregation on  columns of data type “integer”, “float”, “date”,  “datetime” etc.
 essentially, aggregations are nothing but a way to perform an operation on group of rows. In databases, they are represented by operators as sum, avg etc. to do these operations  Django added two new methods to querysets.
 
+Django ORM provides the grouping facility using the aggregation functions like Max, Min, Avg, and Sum. Sometimes we need to get the aggregate values from the objects. Let's understand the following example.
+
+    >>> from django.db.models import Avg, Max, Min, Sum, Count  
+    >>> Student.objects.all().aggregate(Avg('id'))  
+    {'id__avg': 5.5}  
+    >>> Student.objects.all().aggregate(Min('id'))    
+    {'id__min': 1}  
+    >>> Student.objects.all().aggregate(Max('id'))   
+    {'id__max': 10}  
+    >>> Student.objects.all().aggregate(Sum('id'))   
+    {'id__sum': 55}  
+
 
 ### What are Annotations?
 
 Django annotations are a way of enriching the objects returned in QuerySets. That is, when you run queries against your models you can ask for new fields, whose values will be dynamically computed, to be added when evaluating the query. These fields will be accessible as if they were normal attributes of a model.
 
+Syntax:
+
+    Annotated_output = Model.Objects.annotate(variable=aggregate_function(columnname))
+
 **How Annotate Works?**
 
-1.The process in which annotate works is very simple and lean; it expects the model for which the annotation is performed and the aggregate function through which the annotation is going to be wrapped upon.
-2.The annotate function allows the aggregate method to be encapsulated within it. The column which is going to be considered for annotation has to be declared within the aggregate function.
-3.The column value will be expected to be enclosed within a pair of single quotations. In addition, the output of the annotate will be assigned to the annotated output variable, which can be flexibly used for identifying the output of the annotation.
+1. The process in which annotate works is simple ; it expects the model for which the annotation is performed and the aggregate function through which the annotation is going to be wrapped upon.
+
+2. The annotate function allows the aggregate method to be encapsulated within it. The column which is going to be considered for annotation has to be declared within the aggregate function.
+
+3. The column value will be expected to be enclosed within a pair of single quotations. In addition, the output of the annotate will be assigned to the annotated output variable, which can be flexibly used for identifying the output of the annotation.
 
 ### What is a migration file? Why is it needed?
+
 Migrations are Django’s way of propagating changes you make to your models (adding a field, deleting a model, etc.) into your database schema. They’re designed to be mostly automatic, but you’ll need to know when to make migrations, when to run them, and the common problems you might run into.
 ___The Commands___:
 There are several commands which you will use to interact with migrations and Django’s handling of database schema:
@@ -234,9 +495,12 @@ The migration files for each app live in a “migrations” directory inside of 
 Migrations will run the same way on the same dataset and produce consistent results, meaning that what you see in development and staging is, under the same circumstances, exactly what will happen in production.
 Django will make migrations for any change to your models or fields - even options that don’t affect the database - as the only way it can reconstruct a field correctly is to have all the changes in the history, and you might need those options in some data migrations
 
+
 ### What are SQL transactions?
 
 A transaction is a sequence of operations performed (using one or more SQL statements) on a database as a single logical unit of work. The effects of all the SQL statements in a transaction can be either all committed (applied to the database) or all rolled back (undone from the database). A database transaction must be atomic, consistent, isolated and durable.A SQL transaction is a grouping of one or more SQL statements that interact with a database. A transaction in its entirety can commit to a database as a single logical unit or rollback (become undone) as a single logical unit. In SQL, transactions are essential for maintaining database integrity. They are used to preserve integrity when multiple related operations are executed concurrently, or when multiple users interact with a database concurrently.
 
+
 ### What are atomic transactions?
+
 An atomic transaction is an indivisible and irreducible series of database operations such that either all occurs, or nothing occurs. A guarantee of atomicity prevents updates to the database occurring only partially, which can cause greater problems than rejecting the whole series outright.A short-lived transaction with the property “all or nothing”, i.e.,subtransactions in an atomic transaction all commit or abort.

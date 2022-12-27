@@ -4,7 +4,7 @@ import csv
 
 
 class Command(BaseCommand):
-    help = 'import booms'
+    help = 'export data to database'
 
     def add_arguments(self, parser):
         pass
