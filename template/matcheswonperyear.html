@@ -15,12 +15,12 @@
   </head>
 
   <body>
-    <canvas id="bar-chart-grouped" width="800" height="450"></canvas>
+    <canvas id="bar-chart-grouped" width="800px" height="450px"></canvas>
     <script>
       $(document).ready(function () {
         $.ajax({
           type: "GET",
-          url: "http://127.0.0.1:8000/matcheswon",
+          url: "http://127.0.0.1:8000{{output}}",
           dataType: "json",
           success: function (output) {
             matchesWonPerTeamPerYear = {};

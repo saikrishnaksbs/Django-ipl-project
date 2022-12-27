@@ -11,9 +11,10 @@
       $(document).ready(function () {
         $.ajax({
           type: "GET",
-          url: "http://127.0.0.1:8000/economicbowler",
+          url: "http://127.0.0.1:8000{{output}}",
           dataType: "json",
           success: function (output) {
+            console.log(output);
             var bowlers = [];
             var extraruns = [];
             for (data in output) {

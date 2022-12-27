@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.db import transaction
 from django.db.models.functions import Cast
 from django.db.models import FloatField
-
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 def index(request):
     return render(request, 'index.html')
@@ -39,26 +40,29 @@ def index(request):
 
 @transaction.atomic
 def matchesperyearhc(request):
-    output = matchesperyear(request)
-    return render(request, 'matchesperyear.html', {'output': output})
+    
+    urlpatttern=reverse(matchesperyear)
+    print(urlpatttern)
+    return render(request, 'matchesperyear.html', {'urlpattern': urlpatttern})
 
 
 @transaction.atomic
 def matcheswonperyearhc(request):
-    output = matcheswonperyear(request)
+    output = reverse(matcheswonperyear)
     return render(request, 'matcheswonperyear.html', {'output': output})
 
 
 @transaction.atomic
 def extrarunshc(request):
-    output = extrarunsperteam(request)
+    output = reverse(extrarunsperteam)
     return render(request, 'extraruns.html', {'output': output})
 
 
 @transaction.atomic
 def economicbowlerhc(request):
 
-    output = economicbowler(request)
+    output = reverse(economicbowler)
+    print(output)
     return render(request, 'economicalbowlers.html', {'output': output})
 
 
