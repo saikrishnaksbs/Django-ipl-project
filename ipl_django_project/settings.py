@@ -12,7 +12,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+## using existing module to specify location of the .env file
 
+
+load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '=vaw@%&v+h*c=29*g2+%^_ypv-$wnd2+h2(+1)k+mzr=421h9@'
+SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -79,8 +83,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'ipldb',
-        'USER': 'saikrishnaksbs',
-        'PASSWORD': '1234',
+        'USER': str(os.getenv('database_USERname')),
+        'PASSWORD': str(os.getenv('database_password')),
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
