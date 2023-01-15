@@ -7,36 +7,13 @@ from django.db.models.functions import Cast
 from django.db.models import FloatField
 from django.urls import reverse
 from django.http import HttpResponseRedirect
+from django.db.models import Count, F, Value,Q
+from django.db import connection
+from django.db.models import OuterRef, Subquery
+
 
 def index(request):
     return render(request, 'index.html')
-
-# def matchesperyearhc(request):
-
-#     output = Matches.objects.values(
-#         'season').annotate(totalplayed=Count('season'))
-#     return render(request, 'matchesperyear.html', {'output': output})
-
-
-# def matcheswonperyearhc(request):
-#     output = Matches.objects.values('season', 'winner').annotate(
-#         win=Count('winner')).order_by('season')
-#     print(output)
-#     return render(request, 'matcheswonperyear.html', {'output': output})
-
-
-# def extrarunshc(request):
-#     output = Deliveries.objects.filter(match_id__season=2016).values(
-#         'battingteam').annotate(extraruns=Sum('extra_runs'))
-#     print(output)
-#     return render(request, 'extraruns.html', {'output': output})
-
-
-# def economicbowlerhc(request):
-
-#     output = Deliveries.objects.filter(match_id__season=2015).values('bowler').annotate(
-#         economy=Sum('total_runs')*6/Count('total_runs')).order_by('economy')[:10]
-#     return render(request, 'economicalbowlers.html', {'output': output})
 
 @transaction.atomic
 def matchesperyearhc(request):
@@ -71,6 +48,7 @@ def matchesperyear(request):
 
     output = Matches.objects.values(
         'season').annotate(totalplayed=Count('season'))
+    
     return JsonResponse(list(output), safe=False)
 
 
@@ -96,3 +74,25 @@ def economicbowler(request):
     output = Deliveries.objects.filter(match_id__season=2015).values('bowler').annotate(
         economy=Cast((Sum('total_runs')*6.0) / Count('total_runs'), FloatField())).order_by('economy')[:10]
     return JsonResponse(list(output), safe=False)
+
+@transaction.atomic
+def runsperteam(request):
+    output = Deliveries.objects.values('battingteam').annotate(Teamruns=Sum('total_runs')).order_by('Teamruns')
+    return JsonResponse(list(output), safe=False)
+
+@transaction.atomic
+def toprcbbatsmen(request):
+    output = Deliveries.objects.values('batsman').filter(battingteam='Royal Challengers Bangalore').annotate(batsmenruns=Sum('batsman_runs')).order_by('-batsmenruns')[:10]
+    return JsonResponse(list(output), safe=False)
+
+def matchesperteam(request):
+    # intial_output=Matches.objects.values('team1')
+  
+    
+    
+    output_in_team1 = Matches.objects.all().annotate(teamname=F('team1')).values('season','teamname').distinct().annotate(teamcount= Count('teamname'))
+    output_in_team2= Matches.objects.all().annotate(teamname=F('team2')).values('season','teamname').distinct().annotate(teamcount= Count('teamname'))
+    combined_query = output_in_team1|output_in_team2.values('season','teamname').aggregate(total=Sum('teamcount')).order_by('season','teamname')
+    print(combined_query)
+                                                             
+    # return JsonResponse(list(output), safe=False)

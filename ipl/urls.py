@@ -14,5 +14,7 @@ urlpatterns = [
     path('matcheswon', views.matcheswonperyear, name='matcheswonperyear'),
     path('extrarunsperteam', views.extrarunsperteam, name='extrarunsperteam'),
     path('economicbowler', views.economicbowler, name='economicbowler'),
-
+    path('runsperteam', views.runsperteam, name="runsperteam"),
+    path('toprcbbatsmen', views.toprcbbatsmen, name="toprcbbatsmen"),
+    path('matchesperteam', views.matchesperteam, name="matchesperteam"),
 ]

@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-## using existing module to specify location of the .env file
 
 
 load_dotenv()
@@ -120,7 +119,6 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
